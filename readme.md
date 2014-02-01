@@ -38,12 +38,13 @@ The Plugin extends:
 
 + add `package.json` as described
 + add `test.html` to the directory
+
     ```html
     <!DOCTYPE html>
     <script src='test.jsnext'></script>
     ```
 + add `test.jsnext`
-    _test.jsnext_
+    
     ```javascript
     setInterval(() => document.body.textContent += ".. itworks ..", 200);
     ```

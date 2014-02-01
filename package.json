@@ -5,9 +5,6 @@
     "author": "Alexander Kit (alex.kit@atmajs.com)",
     "main": "index.js",
     "license": "MIT",
-    "scripts": {
-        "test": "cd test && npm install && node_modules/.bin/atma test **.test"
-    },
     "dependencies": {
         "traceur": ">0.0.0"
     },

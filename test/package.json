@@ -1,11 +1,12 @@
 {
-  "devDependencies": {
+  "dependencies": {
+  	"atma-loader-traceur": ">0.0.0",
     "atma": ">0.0.0"
   },
-  "dependencies": {
-  	"atma-loader-traceur": ">0.0.0"
+  "scripts": {
+      "test": "node_modules/.bin/atma test **.test"
   },
-
+  
   "atma": {
   	"plugins": [
   		"atma-loader-traceur"
