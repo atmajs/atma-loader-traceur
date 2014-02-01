@@ -2,7 +2,16 @@
 if (typeof include === 'undefined' ) 
 	throw new Error('<atma-traceur> should be loaded by the `atma` module.');
 
-var _extension = global.app && global.app.config.$get('settings.traceur-extension') || 'jsnext';
+var _extension = 'jsnext',
+	_options = {},
+	;
+var config = global.app && global.app.config;
+if (config){
+	_extension = config.$get('settings.traceur-extension') || _extension;
+	_options = config.$get('settings.traceur-options') || _options;
+}
+
+
 
 // `io.File` extension
 if (global.io && io.File) {
@@ -88,11 +97,11 @@ var traceur_compile;
 			_traceur = require('traceur');
 			
 		var filename = uri.toLocalFile(),
-			compiled = _traceur.compile(source, {
-				modules: '',
+			compiled = _traceur.compile(source, obj_extend({}, _options, {
+				
 				filename: filename,
 				sourceMap: true
-			}),
+			})),
 	
 		errors = compiled.errors.length
 			? 'Compilation error:\n'
@@ -124,4 +133,18 @@ var traceur_compile;
 function obj_setProperty(obj, prop, value){
 	obj[prop] = value;
 	return obj;
+}
+
+function obj_extend(target){
+	var imax = arguments.length,
+		i = 1,
+		obj;
+	for(; i < imax; i++){
+		obj = arguments[0];
+		
+		for(var key in obj)
+			target[key] = obj[key]
+	}
+
+	return target;
 }

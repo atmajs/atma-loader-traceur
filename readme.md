@@ -30,6 +30,10 @@ The Plugin extends:
                 // @default: "jsnext"
                 // or define any other extension to be handled by the compiler
                 // "js" is also possible
+
+                "traceur-options": Object
+                // @optional, @default null
+                // any options you want to pass to the traceur-compiler
             }
         }
     ```
