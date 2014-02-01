@@ -1,4 +1,4 @@
-Traceur Compiler (Atma Plugin)
+[Traceur Compiler](https://github.com/google/traceur-compiler) (Atma Plugin)
 -----
 [![Build Status](https://travis-ci.org/atmajs/atma-loader-traceur.png?branch=master)](https://travis-ci.org/atmajs/atma-loader-traceur)
 
@@ -16,6 +16,7 @@ The Plugin extends:
 + add a `package.json` file to your projects root directory.
 + `npm install atma-loader-traceur -save`
 + Edit `package.json`, so that it contains at least these data:
+
     ```json
         {
             "dependencies": {
