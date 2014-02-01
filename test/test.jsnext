@@ -1,0 +1,1 @@
+setInterval(() => document.body.textContent += ".. itworks ..", 200);

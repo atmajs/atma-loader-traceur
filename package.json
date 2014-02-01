@@ -1,0 +1,17 @@
+{
+    "name": "atma-loader-traceur",
+    "version": "0.0.2",
+    "description": "Traceur compiler for `atma-io`, `IncludeJS` and `atma-server`.",
+    "author": "Alexander Kit (alex.kit@atmajs.com)",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "test": "cd test && npm install && node_modules/.bin/atma test **.test"
+    },
+    "dependencies": {
+        "traceur": ">0.0.0"
+    },
+    "devDependencies": {
+        "atma": ">0.0.0"
+    }
+}

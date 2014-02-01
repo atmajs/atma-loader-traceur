@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "atma": ">0.0.0"
+  },
+  "dependencies": {
+  	"atma-loader-traceur": ">0.0.0"
+  },
+
+  "atma": {
+  	"plugins": [
+  		"atma-loader-traceur"
+  	],
+  	"settings": {
+  		"traceur-extension": "jsnext" 
+  	}
+  }
+}

@@ -1,0 +1,21 @@
+
+var FILE = './foo.jsnext';
+UTest({
+	
+	'include': function(done){
+
+		include
+			.js(FILE)
+			.done(function(resp){
+
+				eq(resp.foo.add(1, 2), 3);
+				done();
+			});
+	},
+	
+	'io.File.read': function(){
+		
+		var content = io.File.read(FILE);
+		assert(content.indexOf('function') !== -1);
+	}
+});

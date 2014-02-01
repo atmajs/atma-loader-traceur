@@ -1,0 +1,14 @@
+UTest({
+	
+	'include': function(done){
+
+		include
+			.js('./foo.jsnext')
+			.done(function(resp){
+
+				eq(resp.foo.add(1, 2), 3);
+				done();
+			});
+	}
+
+});
