@@ -27,8 +27,8 @@ The Plugin extends:
                     "atma-loader-traceur"
                 ],
                 "settings": {
-                    "traceur-extension": "jsnext"
-                    // @default: "jsnext"
+                    "traceur-extension": "es6"
+                    // @default: "es6"
                     // or define any other extension to be handled by the compiler
                     // "js" is also possible
 
@@ -48,9 +48,9 @@ The Plugin extends:
 
     ```html
     <!DOCTYPE html>
-    <script src='test.jsnext'></script>
+    <script src='test.es6'></script>
     ```
-+ add `test.jsnext`
++ add `test.es6`
     
     ```javascript
     setInterval(() => document.body.textContent += ".. itworks ..", 200);

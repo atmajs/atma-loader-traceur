@@ -2,7 +2,7 @@
 if (typeof include === 'undefined' ) 
 	throw new Error('<atma-traceur> should be loaded by the `atma` module.');
 
-var _extension = 'jsnext',
+var _extension = 'es6',
 	_options = {}
 	;
 var config = global.app && global.app.config;
