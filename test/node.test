@@ -1,5 +1,5 @@
 
-var FILE = './foo.jsnext';
+var FILE = './foo.es6';
 UTest({
 	
 	'include': function(done){

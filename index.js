@@ -74,13 +74,14 @@ var HttpHandler = Class({
 include.exports = {
 	register: function(rootConfig){
 		
+		var handlers = [];
+		handlers['(.' + _extension + '.map$)'] = HttpHandler;
+		handlers['(.' + _extension + '$)'] = HttpHandler;
+
 		rootConfig.$extend({
 			
 			server: {
-				handlers: {
-					'(.jsnext.map$)': HttpHandler,
-					'(.jsnext$)': HttpHandler
-				}
+				handlers: handlers
 			}
 		});
 	}

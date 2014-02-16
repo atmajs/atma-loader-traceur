@@ -3,7 +3,7 @@ UTest({
 	'include': function(done){
 
 		include
-			.js('./foo.jsnext')
+			.js('./foo.es6')
 			.done(function(resp){
 
 				eq(resp.foo.add(1, 2), 3);
