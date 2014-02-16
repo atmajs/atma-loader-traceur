@@ -10,9 +10,6 @@
   "atma": {
   	"plugins": [
   		"atma-loader-traceur"
-  	],
-  	"settings": {
-  		"traceur-extension": "jsnext" 
-  	}
+  	]
   }
 }
