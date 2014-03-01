@@ -31,6 +31,7 @@ The Plugin extends:
                     // @default: "es6"
                     // or define any other extension to be handled by the compiler
                     // "js" is also possible
+					// For multiple extensions use an Array: ["es6", "js"]
 
                     "traceur-options": Object
                     // @optional, @default null

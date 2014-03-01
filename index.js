@@ -1,21 +1,31 @@
+// should be used in DEV environment only. Compile es6 scripts for production afterwards.
 
 if (typeof include === 'undefined' ) 
-	throw new Error('<atma-traceur> should be loaded by the `atma` module.');
+	throw new Error('<atma-traceur> should be loaded by the `atma` toolkit.');
 
-var _extension = 'es6',
+var _extensions = [ 'es6' ],
 	_options = {}
 	;
 var config = global.app && global.app.config;
 if (config){
-	_extension = config.$get('settings.traceur-extension') || _extension;
+	
+	var ext = config.$get('settings.traceur-extension');
+	if (ext) {
+		_extensions = Array.isArray(ext)
+			? ext
+			: [ ext ]
+			;
+	}
 	_options = config.$get('settings.traceur-options') || _options;
 }
 
 
 
 // `io.File` extension
-if (global.io && io.File) {
-	io.File.middleware['traceur'] = function(file){
+var net = global.net,
+	File = global.io.File;
+if (File) {
+	File.middleware['traceur'] = function(file){
 			
 		if (typeof file.content !== 'string')
 			file.content = file.content.toString();
@@ -25,15 +35,15 @@ if (global.io && io.File) {
 		file.sourceMap = compiled.sourceMap;
 		file.content = compiled.js;
 	};
-
-	io
-		.File
-		.registerExtensions(obj_setProperty({}, _extension, [ 'traceur:read' ]));
+	
+	
+	File
+		.registerExtensions(obj_createMany(_extensions, [ 'traceur:read' ]));
 }
 
 // `IncludeJS` extension
 include.cfg({
-	loader: obj_setProperty({}, _extension, {
+	loader: obj_createMany(_extensions, {
 		
 		process: function(source, resource){
 			
@@ -51,10 +61,34 @@ var HttpHandler = Class({
 			isSourceMap = url.substr(-4) === '.map';
 		if (isSourceMap) 
 			url = url.substring(0, url.length - 4);
+			
+		if (url[0] === '/') 
+			url = url.substring(1);
 		
-		var uri = new net.Uri(config.base).combine(url),
-			file = new io.File(uri)
-			;
+		var file, path;
+		if (config.static) {
+			path =  net.Uri.combine(config.static, url);
+			if (File.exists(path))
+				file = new File(path);
+		}
+		
+		if (file == null && config.base) {
+			path =  net.Uri.combine(config.base, url);
+			if (File.exists(path))
+				file = new File(path);
+		}
+		
+		if (file == null) {
+			path =  net.Uri.combine(process.cwd(), url);
+			if (File.exists(path))
+				file = new File(path);
+		}
+		
+		if (file == null) {
+			this.resolve('Not Found - ' + url, 404, 'plain/text');
+			return;
+		}
+		
 		
 		file.read();
 		
@@ -64,9 +98,9 @@ var HttpHandler = Class({
 			
 		var mimeType = isSourceMap
 			? 'application/json'
-			: 'text/javascript';
+			: 'text/javascript'
+			;
 			
-		
 		this.resolve(source, 200, mimeType);
 	}
 });
@@ -75,9 +109,12 @@ include.exports = {
 	register: function(rootConfig){
 		
 		var handlers = [];
-		handlers['(.' + _extension + '.map$)'] = HttpHandler;
-		handlers['(.' + _extension + '$)'] = HttpHandler;
-
+		
+		_extensions.forEach(function(ext){
+			handlers['(.' + ext + '.map$)'] = HttpHandler;
+			handlers['(.' + ext + '$)'] = HttpHandler;	
+		});
+		
 		rootConfig.$extend({
 			
 			server: {
@@ -129,7 +166,15 @@ var traceur_compile;
 	};
 	
 }());
+
+function obj_createMany(properties, value){
+	var obj = {};
+	properties.forEach(function(prop){
+		obj[prop] = value;
+	});
 	
+	return obj;
+}
 
 function obj_setProperty(obj, prop, value){
 	obj[prop] = value;
