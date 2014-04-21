@@ -25,7 +25,7 @@ if (config){
 var net = global.net,
 	File = global.io.File;
 if (File) {
-	File.middleware['traceur'] = function(file){
+	File.middleware['atma-loader-traceur'] = function(file){
 			
 		if (typeof file.content !== 'string')
 			file.content = file.content.toString();
@@ -38,7 +38,7 @@ if (File) {
 	
 	
 	File
-		.registerExtensions(obj_createMany(_extensions, [ 'traceur:read' ]));
+		.registerExtensions(obj_createMany(_extensions, [ 'atma-loader-traceur:read' ]));
 }
 
 // `IncludeJS` extension
