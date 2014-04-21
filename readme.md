@@ -13,10 +13,9 @@ The Plugin extends:
 
 ###### Embed into the Project
 
-+ add a `package.json` file to your projects root directory.
-+ `npm install atma-loader-traceur -save`
-+ Edit `package.json`, so that it contains at least these data:
++ `atma plugin install atma-loader-traceur`
 
+	This adds `atma-loader-traceur` npm dependency and the `package.json` would look like:
     ```json
         {
             "dependencies": {
@@ -44,7 +43,8 @@ The Plugin extends:
 
 ##### Quick Try
 
-+ add `package.json` as described
++ install atma: `$ npm install atma -g`
++ install plugin: `$ atma plugin install atma-loader-traceur`
 + add `test.html` to the directory
 
     ```html
@@ -56,7 +56,7 @@ The Plugin extends:
     ```javascript
     setInterval(() => document.body.textContent += ".. itworks ..", 200);
     ```
-+ start the server: `$ atma server` (havent installed atma? Then `$ npm install atma -g`)
++ start the server: `$ atma server`
 + open the browser: `http://localhost:5777/test.html`
 
 
