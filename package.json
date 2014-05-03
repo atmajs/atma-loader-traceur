@@ -1,6 +1,6 @@
 {
     "name": "atma-loader-traceur",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "description": "Traceur compiler for `atma-io`, `IncludeJS` and `atma-server`.",
     "author": "Alexander Kit (alex.kit@atmajs.com)",
     "main": "index.js",
