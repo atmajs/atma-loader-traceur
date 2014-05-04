@@ -22,9 +22,11 @@ if (config){
 
 
 // `io.File` extension
-var net = global.net,
-	File = global.io.File;
-if (File) {
+var net = global.net;
+(function(File){
+	if (File == null)
+		return;
+
 	File.middleware['atma-loader-traceur'] = function(file){
 			
 		if (typeof file.content !== 'string')
@@ -35,11 +37,10 @@ if (File) {
 		file.sourceMap = compiled.sourceMap;
 		file.content = compiled.js;
 	};
-	
-	
 	File
 		.registerExtensions(obj_createMany(_extensions, [ 'atma-loader-traceur:read' ]));
-}
+		
+}(global.io && global.io.File))
 
 // `IncludeJS` extension
 include.cfg({
@@ -66,13 +67,13 @@ var HttpHandler = Class({
 			url = url.substring(1);
 		
 		var file, path;
-		if (config.static) {
+		if (config['static']) {
 			path =  net.Uri.combine(config.static, url);
 			if (File.exists(path))
 				file = new File(path);
 		}
 		
-		if (file == null && config.base) {
+		if (file == null && config['base']) {
 			path =  net.Uri.combine(config.base, url);
 			if (File.exists(path))
 				file = new File(path);
@@ -107,28 +108,17 @@ var HttpHandler = Class({
 
 include.exports = {
 	
-	/* >>> Atma.Toolkit */
-	register: function(rootConfig){
-		
-		var handlers = {};
-		_extensions.forEach(function(ext){
-			handlers['(\\.' + ext + '$)'] = HttpHandler;	
-			handlers['(\\.' + ext + '\\.map$)'] = HttpHandler;
-		});
-		
-		rootConfig.$extend({
-			
-			server: {
-				handlers: handlers
-			}
-		});
-	},
+	/* >>> Atma.Toolkit (registered via server)*/
+	register: function(rootConfig){},
 	
 	/* >>> Atma.Server */
 	attach: function(app){
 		_extensions.forEach(function(ext){
-			app.handlers.registerHandler('(\\.' + ext + '$)', HttpHandler);
-			app.handlers.registerHandler('(\\.' + ext + '\\.map$)', HttpHandler);
+			var rgx = '(\\.EXT$)|(\\.EXT\\?)'.replace(/EXT/g, ext),
+				rgx_map = '(\\.EXT\\.map$)|(\\.EXT\\.map\\?)'.replace(/EXT/g, ext);
+			
+			app.handlers.registerHandler(rgx, HttpHandler);
+			app.handlers.registerHandler(rgx_map, HttpHandler);
 		});
 	}
 };
