@@ -4,7 +4,7 @@
     "atma": ">0.0.0"
   },
   "scripts": {
-      "test": "node_modules/.bin/atma test **.test"
+      "test": "atma test --config config.js"
   },
   
   "atma": {

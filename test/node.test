@@ -16,6 +16,6 @@ UTest({
 	'io.File.read': function(){
 		
 		var content = io.File.read(FILE);
-		assert(content.indexOf('function') !== -1);
+		has_(content, 'function');
 	}
 });
