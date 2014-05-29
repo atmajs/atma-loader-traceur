@@ -26,15 +26,11 @@ The Plugin extends:
                     "atma-loader-traceur"
                 ],
                 "settings": {
-                    "traceur-extension": "es6"
-                    // @default: "es6"
-                    // or define any other extension to be handled by the compiler
-                    // "js" is also possible
-					// For multiple extensions use an Array: ["es6", "js"]
-
-                    "traceur-options": Object
-                    // @optional, @default null
-                    // any options you want to pass to the traceur-compiler
+					"atma-loader-traceur": {
+						"extensions" : [ "es6" ]
+						
+						// ... other traceur-compiler options
+					}
                 }
             }
         }
