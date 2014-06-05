@@ -19,8 +19,8 @@ module.exports	= {
 		errors = compiled.errors.length
 			? 'throw Error("Traceur Error: '
 				+ filename
-				+ '\n'
-				+ compiled.errors.join('\n').replace(/"/g, '\\"')
+				+ '\\n \n\\'
+				+ compiled.errors.join('\\n \n\\').replace(/"/g, '\\"')
 				+ '");'
 			: null
 		;
@@ -31,7 +31,12 @@ module.exports	= {
 				sourceMap: errors
 			};
 		}
-		
+		if (options.sourceMap === false) {
+			return {
+				content: compiled.js,
+				sourceMap: null
+			};
+		}
 		return {
 			content: compiled.js
 				+ '\n//# sourceMappingURL='
