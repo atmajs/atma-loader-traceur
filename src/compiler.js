@@ -18,9 +18,7 @@ module.exports	= {
 	
 		errors = compiled.errors.length
 			? 'throw Error("Traceur Error: '
-				+ filename
-				+ '\\n \n\\'
-				+ compiled.errors.join('\\n \n\\').replace(/"/g, '\\"')
+				+ compiled.errors.join('\\\n').replace(/"/g, '\\"')
 				+ '");'
 			: null
 		;
