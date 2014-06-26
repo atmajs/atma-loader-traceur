@@ -17,5 +17,30 @@ UTest({
 		
 		var content = io.File.read(FILE);
 		has_(content, 'function');
+	},
+	'io.File.readAsync': function(){
+		
+		return io
+			.File
+			.readAsync(FILE)
+			.done(function(content){
+				has_(content, 'function');
+			});
+	},
+
+	'io.File.read SourceMap': function(){
+		var content = io.File.read(FILE + '.map');
+
+		content = JSON.parse(content);
+		has_(content, 'mappings');
+	},
+	'io.File.readAsync SourceMap': function(){
+		return io
+			.File
+			.readAsync(FILE + '.map')
+			.done(function(content){
+				content = JSON.parse(content);
+				has_(content, 'mappings');
+			});
 	}
 });

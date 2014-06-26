@@ -24,13 +24,17 @@
 		 *		compile: function(source, filepath, config): { content, ?sourceMap}
 		 *		?compileAsync: function(source, filepath, config, function(error, {content, ?sourceMap})):
 		 */
-		function create(data, Compiler){
+		function create(data, Compiler, Loader){
 			var name = data.name,
 				options = getOptions(name, data.options)
 				;
 			
-			create_FileLoader(name, options, Compiler);
-			create_IncludeLoader(name, options, Compiler);
+			create_IncludeLoader(name, options, Compiler, Loader);
+			
+			Compiler
+				&& create_FileMiddleware(name, options, Compiler);
+			Loader
+				&& create_FileLoader(name, options, Loader);
 			
 			var HttpHandler = create_HttpHandler(name, options, Compiler);
 			return {
@@ -51,7 +55,7 @@
 			File = global.io.File
 			;
 			
-		function create_FileLoader(name, options, Compiler){
+		function create_FileMiddleware(name, options, Compiler){
 			var Middleware = File.middleware[name] = {
 				read: function(file, config){
 					ensureContent(file);
@@ -75,6 +79,68 @@
 			}
 			File.registerExtensions(createExtensionsMeta());
 			
+			// Virtual Map Files
+			var SourceMapFile = Class({
+				Base: File,
+				Override: {
+					read: function(opts){
+						if (this.exists('mapOnly')) 
+							return this.super(opts)
+						
+						var path = this.getSourcePath();
+						if (path == null) 
+							return null;
+						
+						var file = new File(path);
+						file.read(opts);
+						return (this.content = file.sourceMap);
+					},
+					readAsync: function(opts){
+						if (this.exists('mapOnly')) 
+							return this.super(opts)
+						
+						var path = this.getSourcePath();
+						if (path == null) 
+							return new Class.Deferred().reject({code: 404});
+						
+						var file = new File(path),
+							self = this;
+						
+						return file
+							.readAsync(opts)
+							.pipe(function(){
+								return (self.content = file.sourceMap);
+							});
+					},
+					exists: function(check){
+						if (this.super()) 
+							return true;
+						if (check === 'mapOnly') 
+							return false;
+						
+						var path = this.getSourcePath();
+						return path != null
+							? File.exists(path)
+							: false;
+					}
+				},
+				getSourcePath: function(){
+					var path = this.uri.toString(),
+						source = path.replace(/\.map$/i, '');
+					return path === source
+						? null
+						: source;
+				}
+			});
+			
+			var Factory = File.getFactory();
+			options.extensions.forEach(function(ext){
+				Factory.registerHandler(
+					new RegExp('\\.' + ext + '.map$', 'i')
+					, SourceMapFile
+				);
+			});
+			
 			function compile(method, file, config, cb){
 				var source = file.content,
 					path = file.uri.toString(),
@@ -95,9 +161,85 @@
 				return obj_createMany(options.extensions, [ name + ':read' ]);
 			}
 		}
-		function create_IncludeLoader(name, options, Compiler){
+		function create_FileLoader(name, options, Loader) {
+			var read = Loader.load || function(path, options){
+					throw Error('Sync read is not Supported');
+				},
+				readAsync = Loader.loadAsync || function(path, options, cb){
+					cb(null, this.read(options));
+				},
+				readSourceMapAsync = Loader.loadSourceMapAsync
+				;
+				
+			var Virtual = Class({
+				exists: function(){
+					return true;
+				},
+				existsAsync: function(cb){
+					cb(null, true)
+				},
+				read: function(options){
+					return this.content
+						|| (this.content = read.call(this, options));
+				},
+				readAsync: function(options) {
+					var dfr = new Class.Deferred(),
+						self = this;
+					if (self.content) 
+						return dfr.resolve(self.content);
+					
+					readAsync.call(this, options, function(error, content){
+						if (error) {
+							dfr.reject(error);
+							return;
+						}
+						dfr.resolve(self.content = content);
+					});
+					return dfr;
+				},
+				readSourceMapAsync: readSourceMapAsync == null ? null : function(options){
+					var dfr = new Class.Deferred(),
+						self = this;
+					if (self.sourceMap) 
+						return dfr.resolve(self.sourceMap);
+					
+					readSourceMapAsync.call(this, options, function(error, content){
+						if (error) {
+							dfr.reject(error);
+							return;
+						}
+						dfr.resolve(self.sourceMap = sourceMap);
+					});
+					return dfr;
+				},
+				write: Loader.write  || function(){
+					throw Error('Write is not supported')
+				},
+				writeAsync: Loader.writeAsync || function(){
+					throw Error('Write is not supported')
+				}
+			});
+			var Factory = File.getFactory();
+			options.extensions.forEach(function(ext){
+				Factory.registerHandler(
+					new RegExp('\\.' + ext + '$', 'i')
+					, Virtual
+				);
+			});
+		}
+		function create_IncludeLoader(name, options, Compiler, Loader){
 			include.cfg({
 				loader: obj_createMany(options.extensions, {
+					load: Loader == null ? null : function(resource, cb){
+						
+						if (Loader.loadAsync) {
+							Loader.loadAsync(resource.url, {}, function(err, content){
+								cb(resource, content);
+							});
+							return;
+						}
+						cb(resource, Loader.load(resource.url));
+					},
 					process: function(source, resource){
 						options = obj_extend({}, options);
 						// source map for include in nodejs is not required
@@ -156,9 +298,12 @@
 						handler.resolve('Not Found - ' + url, 404, 'plain/text');
 					}
 					function onSuccess(file){
+						var fn = file.readAsync;
+						if (isSourceMap && file.readSourceMapAsync) 
+							fn = file.readSourceMapAsync;
 						
-						file
-							.readAsync()
+						fn
+							.call(file)
 							.fail(handler.rejectDelegate())
 							.done(function(){
 								var source = isSourceMap
@@ -167,7 +312,7 @@
 									
 								var mimeType = isSourceMap
 									? 'application/json'
-									: options.mimeType
+									: (file.mimeType || options.mimeType)
 									;
 									
 								handler.resolve(source, 200, mimeType);
