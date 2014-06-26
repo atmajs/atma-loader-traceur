@@ -417,4 +417,6 @@
 		
 	}());
 	
+	// stacktraces
+	require('atma-loader-stacktrace')();
 }());
