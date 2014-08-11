@@ -243,6 +243,9 @@
 						cb(resource, Loader.load(resource.url));
 					},
 					process: function(source, resource){
+						if (Compiler == null)
+							return source;
+						
 						options = obj_extend({}, options);
 						// source map for include in nodejs is not required
 						options.sourceMap = false;
@@ -277,7 +280,9 @@
 					_resolveStaticPath = (x = global.atma)
 						&& (x = x.server)
 						&& (x = x.StaticContent)
-						&& (x.utils.resolvePath)
+						&& (x = x.utils)
+						&& (x = x.resolvePath)
+						;
 				}
 				if (_resolveStaticPath == null) {
 					onFailure();
