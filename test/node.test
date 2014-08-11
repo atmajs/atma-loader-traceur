@@ -1,5 +1,6 @@
+require('..');
 
-var FILE = './foo.es6';
+var FILE = '/test/foo.es6';
 UTest({
 	
 	'include': function(done){
@@ -30,7 +31,8 @@ UTest({
 
 	'io.File.read SourceMap': function(){
 		var content = io.File.read(FILE + '.map');
-
+		
+		is_(content, 'String');
 		content = JSON.parse(content);
 		has_(content, 'mappings');
 	},

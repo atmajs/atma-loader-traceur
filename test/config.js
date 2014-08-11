@@ -2,11 +2,28 @@ module.exports = {
 	suites: {
 		dom: {
 			exec: 'dom',
-			tests: 'dom.test'
+			tests: 'test/dom.test',
+			$config: {
+				'$before': function(done){
+					UTest
+						.configurate({
+							'http.eval': function(done){
+								include
+									.js('/index.js::TraceurPlugin')
+									.done(function(resp){
+										var app = atma.server.app;
+										resp.TraceurPlugin.attach(app);
+										done();
+									});
+							}
+						}, done);
+					
+				}
+			}
 		},
 		node: {
 			exec: 'node',
-			tests: 'node.test'
+			tests: 'test/node.test'
 		}
 	}
 }

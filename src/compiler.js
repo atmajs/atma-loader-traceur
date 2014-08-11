@@ -12,6 +12,8 @@ module.exports	= {
 		
 		if (options.sourceMap == null) 
 			options.sourceMap = true;
+
+		options.sourceMaps = options.sourceMap;
 			
 		var errors = null,
 			compiled = _traceur.compile(source, options),
@@ -40,7 +42,7 @@ module.exports	= {
 				+ '\n//# sourceMappingURL='
 				+ uri.file
 				+ '.map',
-			sourceMap: compiled.sourceMap
+			sourceMap: compiled.sourceMap || compiled.generatedSourceMap
 		};
 	}
 };

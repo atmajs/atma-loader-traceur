@@ -1,9 +1,8 @@
 UTest({
 	
 	'include': function(done){
-
 		include
-			.js('./foo.es6')
+			.js('/test/foo.es6')
 			.done(function(resp){
 
 				eq(resp.foo.add(1, 2), 3);
