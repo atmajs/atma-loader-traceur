@@ -150,8 +150,9 @@
 				return Compiler[method](source, path, opts, cb)
 			}
 			function ensureContent(file){
-				if (typeof file.content !== 'string')
-					file.content = file.content.toString();
+				var content = file.content;
+				if (typeof content !== 'string' && content.toString !== _obj_toString)
+					file.content = content.toString();
 			}
 			function applyResult(file, compiled){
 				file.sourceMap = compiled.sourceMap;
@@ -160,6 +161,7 @@
 			function createExtensionsMeta(){
 				return obj_createMany(options.extensions, [ name + ':read' ]);
 			}
+			var _obj_toString = Object.prototype.toString;
 		}
 		function create_FileLoader(name, options, Loader) {
 			var read = Loader.load || function(path, options){
@@ -269,6 +271,26 @@
 				}
 				try_createFile(base, url, onSuccess, onFailure);
 			}
+			function try_createFile_viaStatic(config, url, onSuccess, onFailure){
+				if (_resolveStaticPath === void 0) {
+					var x;
+					_resolveStaticPath = (x = global.atma)
+						&& (x = x.server)
+						&& (x = x.StaticContent)
+						&& (x.utils.resolvePath)
+				}
+				if (_resolveStaticPath == null) {
+					onFailure();
+					return;
+				}
+				var file = new io.File(_resolveStaticPath(url, config));
+				if (file.exists() === false) {
+					onFailure();
+					return;
+				}
+				onSuccess(file);
+			}
+			var _resolveStaticPath;
 			
 			return Class({
 				Base: Class.Deferred,
@@ -285,9 +307,16 @@
 						
 					if (url[0] === '/') 
 						url = url.substring(1);
+						
 					
-					try_createFile_byConfig(config, 'static', url, onSuccess, try_Base);
 					
+					options.base = config.base;
+					
+					try_createFile_viaStatic(config, url, onSuccess, try_Static);
+					
+					function try_Static(){
+						try_createFile_byConfig(config, 'static', url, onSuccess, try_Base);
+					}
 					function try_Base() {
 						try_createFile_byConfig(config, 'base', url, onSuccess, try_Cwd);
 					}
@@ -295,7 +324,7 @@
 						try_createFile(process.cwd(), url, onSuccess, onFailure);
 					}
 					function onFailure(){
-						handler.resolve('Not Found - ' + url, 404, 'plain/text');
+						handler.reject('Not Found - ' + url, 404, 'text/plain');
 					}
 					function onSuccess(file){
 						var fn = file.readAsync;

@@ -2,6 +2,8 @@
 -----
 [![Build Status](https://travis-ci.org/atmajs/atma-loader-traceur.png?branch=master)](https://travis-ci.org/atmajs/atma-loader-traceur)
 
+_with proper stacktrace support_
+
 The Plugin extends:
 - [`IncludeJS`](https://github.com/atmajs/IncludeJS) with a custom loader
 - [`atma-io`](https://github.com/atmajs/atma-io) with a custom middleware to read ES6 files
