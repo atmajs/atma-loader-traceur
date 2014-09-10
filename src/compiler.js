@@ -11,15 +11,16 @@ module.exports	= {
 		if (config.sourceMap == null) 
 			config.sourceMap = true;
 
-		var options = config.traceur || {};
-		options.sourceMaps = config.sourceMap;
-		options.filename = filename;
+		var options = _defaults(config.traceur, {
+			script: true,
+			sourceMaps: config.sourceMap,
+			filename: filename
+		});
 		
-		var errors = null,
-			compiled = compile(source, options),	
+		var compiled = _compile(source, options),	
 			errors = compiled.errors == null || compiled.errors.length === 0
 				? null
-				: 'throw Error("Traceur Error: '
+				: 'throw Error("Traceur '
 					+ compiled.errors.join('\\\n').replace(/"/g, '\\"')
 					+ '");'
 			;
@@ -36,19 +37,34 @@ module.exports	= {
 				sourceMap: null
 			};
 		}
+		var js = compiled.js,
+			sourceMap = compiled.sourceMap || compiled.generatedSourceMap;
+		if (sourceMap) 
+			js += '\n//# sourceMappingURL=' + uri.file + '.map';
+		
 		return {
-			content: compiled.js
-				+ '\n//# sourceMappingURL='
-				+ uri.file
-				+ '.map',
-			sourceMap: compiled.sourceMap || compiled.generatedSourceMap
+			content: js,
+			sourceMap: sourceMap
 		};
 	}
 };
 
-function compile(source, options) {
+function _defaults(target, source){
+	if (target == null) 
+		return source;
+	for(var key in source){
+		if (key in target === false) 
+			target[key] = source[key];
+	}
+	return target;
+}
+function _compile(source, options) {
 	try {
-		return _traceur.moduleToCommonJS(source, options);
+		var compiler = new _traceur.NodeCompiler(options);
+		return {
+			js: compiler.compile(source),
+			sourceMap: options.sourceMap && compiler.getSourceMap()
+		};
 	} catch(errors) {
 		if (errors.length == null) 
 			errors = [errors];
