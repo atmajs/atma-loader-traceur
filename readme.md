@@ -30,8 +30,7 @@ The Plugin extends:
                 "settings": {
 					"atma-loader-traceur": {
 						"extensions" : [ "es6" ]
-						
-						// ... other traceur-compiler options
+						"traceur": {} // traceur-compiler options
 					}
                 }
             }

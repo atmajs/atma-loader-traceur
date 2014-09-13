@@ -13,11 +13,10 @@ module.exports	= {
 
 		var options = _defaults(config.traceur, {
 			script: true,
-			sourceMaps: config.sourceMap,
-			filename: filename
+			sourceMaps: config.sourceMap
 		});
 		
-		var compiled = _compile(source, options),	
+		var compiled = _compile(source, options, filename),	
 			errors = compiled.errors == null || compiled.errors.length === 0
 				? null
 				: 'throw Error("Traceur '
@@ -31,7 +30,7 @@ module.exports	= {
 				sourceMap: errors
 			};
 		}
-		if (options.sourceMap === false) {
+		if (options.sourceMaps === false) {
 			return {
 				content: compiled.js,
 				sourceMap: null
@@ -58,12 +57,18 @@ function _defaults(target, source){
 	}
 	return target;
 }
-function _compile(source, options) {
+function _compile(source, options, filename) {
 	try {
+		options.script = true;
 		var compiler = new _traceur.NodeCompiler(options);
+		var compiled = compiler.compile(source, filename); 
+
+		var sourceMap;
+		if (options.sourceMaps)
+			sourceMap = compiler.getSourceMap();
 		return {
-			js: compiler.compile(source),
-			sourceMap: options.sourceMap && compiler.getSourceMap()
+			js: compiled,
+			sourceMap: sourceMap
 		};
 	} catch(errors) {
 		if (errors.length == null) 
